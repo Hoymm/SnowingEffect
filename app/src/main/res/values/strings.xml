@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">SnowingEffect</string>
+    <string name="start_in_foreground">START IN FOREGROUND</string>
+    <string name="settings">Settings</string>
+    <string name="use_accelerometer_to_detect_snow_direction">USE ACCELEROMETER TO DETECT SNOW DIRECTION</string>
+    <string name="snowflakes_amount">Snowflakes Amount</string>
+    <string name="snowflakes_speed">Snowflakes Speed</string>
+    <string name="snowflakes_types">Snowflakes Types</string>
+</resources>
