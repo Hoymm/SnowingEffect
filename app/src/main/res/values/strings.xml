@@ -6,4 +6,6 @@
     <string name="snowflakes_amount">Snowflakes Amount</string>
     <string name="snowflakes_speed">Snowflakes Speed</string>
     <string name="snowflakes_types">Snowflakes Types</string>
+    <string name="set_wallpaper">Set Wallpaper</string>
+    <string name="settings_dotdotdot">Settings...</string>
 </resources>

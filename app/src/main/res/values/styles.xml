@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -9,6 +8,7 @@
     </style>
 
 
+    <!-- #################################### MAIN MENU ####################################-->
     <!-- Both Wrap Content Styles -->
     <style name="wrap_content">
         <!-- Customize your theme here. -->
@@ -16,23 +16,29 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-
     <!-- SNOWFLAKES IMAGES STYLES -->
     <style name="wrap_content.snowflake_iv">
         <item name="android:adjustViewBounds">true</item>
     </style>
 
-
-
     <!-- Snowflakes Settings LinearLayout Style -->
     <style name="snowflakes_settings_ll">
         <!-- Customize your theme here. -->
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">10</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">center|start</item>
         <item name="android:layout_marginTop">10dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">@color/menuButtonColors</item>
     </style>
+    <!-- #################################### WALLPAPER SETTINGS ####################################-->
 
+    <!-- Wallpaper Button Style -->
+    <style name="wallpapers_buttons_style">
+        <!-- Customize your theme here. -->
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">50</item>
+    </style>
 </resources>

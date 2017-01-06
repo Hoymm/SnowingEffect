@@ -17,11 +17,11 @@
 
 
     <!-- Start in foreground -->
+
     <LinearLayout
         style="@style/snowflakes_settings_ll"
         android:clickable="true"
         android:onClick="startBackgroundActivity"
-        android:background="#4ab9d2"
         >
         <ImageView
             style="@style/wrap_content.snowflake_iv"
@@ -34,16 +34,32 @@
             />
     </LinearLayout>
 
+    <!-- Set Wallpaper -->
+    <LinearLayout
+        style="@style/snowflakes_settings_ll"
+        android:clickable="true"
+        android:onClick="openWallpaperActivity"
+        >
+        <ImageView
+            style="@style/wrap_content.snowflake_iv"
+            android:src="@drawable/menu_snow_2" />
+        <TextView
+            style="@style/wrap_content"
+            android:text="@string/set_wallpaper"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            />
+    </LinearLayout>
+
     <!-- Settings -->
     <LinearLayout
         style="@style/snowflakes_settings_ll"
         android:clickable="true"
         android:onClick="openSettingsActivity"
-        android:background="#4ab9d2"
         >
         <ImageView
             style="@style/wrap_content.snowflake_iv"
-            android:src="@drawable/menu_snow_1" />
+            android:src="@drawable/menu_snow_3" />
         <TextView
             style="@style/wrap_content"
             android:text="@string/settings"

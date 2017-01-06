@@ -6,5 +6,9 @@
 
 
 
+    <!-- Main Menu -->
     <color name="backgroundColor">#455bea</color>
+    <color name="menuButtonColors">#4ab9d2</color>
+
+    <!-- Wallpaper settings -->
 </resources>

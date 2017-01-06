@@ -2,11 +2,14 @@ package com.hoymm.damianmuca.snowingeffect;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -22,7 +25,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
         // Load settings from SharedPreferences, and set proper view over layout
         readSP();
         initObjects();
@@ -118,18 +120,21 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void snowflakesType1_CB(View view) {
         SharedPreferences.Editor editor = sharedPref.edit();
+        snowflakeType1_CB.setChecked(!snowflakeType1_CB.isChecked());
         editor.putBoolean(getString(R.string.SP_snowflakes_type_1_cb), snowflakeType1_CB.isChecked());
         editor.apply();
     }
 
     public void snowflakesType2_CB(View view) {
         SharedPreferences.Editor editor = sharedPref.edit();
+        snowflakeType2_CB.setChecked(!snowflakeType2_CB.isChecked());
         editor.putBoolean(getString(R.string.SP_snowflakes_type_2_cb), snowflakeType2_CB.isChecked());
         editor.apply();
     }
 
     public void snowflakesType3_CB(View view) {
         SharedPreferences.Editor editor = sharedPref.edit();
+        snowflakeType3_CB.setChecked(!snowflakeType3_CB.isChecked());
         editor.putBoolean(getString(R.string.SP_snowflakes_type_3_cb), snowflakeType3_CB.isChecked());
         editor.apply();
     }
