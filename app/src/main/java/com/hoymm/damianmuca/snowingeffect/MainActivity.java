@@ -16,13 +16,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
-
-        Intent settingsActivity = new Intent(this, SettingsActivity.class);
-        settingsActivity.putExtra(getString(R.string.EK_show_wallpaper_changing), "no");
-        startActivity(settingsActivity);
     }
 
     public void openSettingsActivity(View view) {

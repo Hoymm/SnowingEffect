@@ -2,17 +2,25 @@ package com.hoymm.damianmuca.snowingeffect;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
 public class SettingsActivity extends AppCompatActivity {
+    // WALLPAPER feature objects
+    ImageView wallpaper_iv;
+    int currentWallpaperIndex, wallpapersAmount;
+
+    // OTHERS objects
     boolean useAccelerometerToDetect, snowflakeType1, snowflakeType2, snowflakeType3;
     CheckBox useAccelerometerToDetect_CB, snowflakeType1_CB, snowflakeType2_CB, snowflakeType3_CB;
 
@@ -25,11 +33,42 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
         // Load settings from SharedPreferences, and set proper view over layout
         readSP();
+        disableOrEnableWallpaperChoosing();
         initObjects();
         setReadedValuesFromSPToLayout();
     }
+
+    private void disableOrEnableWallpaperChoosing() {
+        Intent intent = getIntent();
+        String ifEnableWallpaperChoosing = intent.getStringExtra(getString(R.string.EK_show_wallpaper_changing));
+
+        // yes, enable changing wallpaper feature in settings
+        if (ifEnableWallpaperChoosing.equals("yes")){
+            initializateObjectsForWallpaperChoosingFeature();
+        }
+        // no, disable changing wallpaper feature in settings (HIDE IT)
+        else{
+            LinearLayout wallpaper_LL = (LinearLayout) findViewById(R.id.wallpaper_choosing_panel_id);
+            wallpaper_LL.setVisibility(View.GONE);
+        }
+
+    }
+
+    private void initializateObjectsForWallpaperChoosingFeature() {
+        wallpapersAmount = 0;
+        while(getResources().getIdentifier("wallpaper_"+wallpapersAmount, "raw", getPackageName())!=0)
+            wallpapersAmount++;
+
+        currentWallpaperIndex = sharedPref.getInt(getResources().getString(R.string.SP_current_wallpaper_index), 0);
+        wallpaper_iv = (ImageView) findViewById(R.id.wallpaper_choosing_panel_iv_id);
+        int wallpaper_raw_id = getResources().getIdentifier
+                ("wallpaper_"+ currentWallpaperIndex, "raw", getPackageName());
+        wallpaper_iv.setImageResource(wallpaper_raw_id);
+    }
+
 
     private void setReadedValuesFromSPToLayout() {
         useAccelerometerToDetect_CB.setChecked(useAccelerometerToDetect);
@@ -149,5 +188,28 @@ public class SettingsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(getString(R.string.SP_snowflakes_speed), snowflakesSpeed);
         editor.apply();
+    }
+
+    public void nextWallpaperClicked(View view) {
+        changeDisplayingWallpaperOfIndex(1);
+    }
+
+    public void previousWallpaperClicked(View view) {
+        changeDisplayingWallpaperOfIndex(-1);
+    }
+
+
+    private void changeDisplayingWallpaperOfIndex(int indexToChange) {
+        currentWallpaperIndex = ((currentWallpaperIndex+indexToChange)%wallpapersAmount);
+
+        // below is some mistake (-1)%2 should be 1, and program calculate it as -1, so we must handle it manually
+        currentWallpaperIndex = currentWallpaperIndex < 0 ? wallpapersAmount-1 : currentWallpaperIndex;
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(getString(R.string.SP_current_wallpaper_index), currentWallpaperIndex);
+        editor.apply();
+        int wallpaper_raw_id = getResources().getIdentifier
+                ("wallpaper_"+ currentWallpaperIndex, "raw", getPackageName());
+        wallpaper_iv.setImageResource(wallpaper_raw_id);
     }
 }

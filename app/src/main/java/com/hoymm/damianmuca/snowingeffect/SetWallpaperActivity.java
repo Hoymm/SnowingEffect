@@ -32,15 +32,14 @@ public class SetWallpaperActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         // read SharedPreferences, and refresh ImageView
-        readSPandRefreshIV();
+        readSPAndRefreshIV();
         super.onResume();
     }
 
-    private void readSPandRefreshIV() {
+    private void readSPAndRefreshIV() {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        wallpaper_drawable_id = getResources().getIdentifier("wallpaper_"+
-                sharedPref.getInt(getResources().getString(R.string.SP_current_wallpaper_index), 0)
-                , "drawable", getPackageName());
+        int index = sharedPref.getInt(getResources().getString(R.string.SP_current_wallpaper_index), 0);
+        wallpaper_drawable_id = getResources().getIdentifier("wallpaper_"+ index, "raw", getPackageName());
 
 
         currentWallpaperIV = (ImageView) findViewById(R.id.my_cur_wallpaper_iv_id);
@@ -58,21 +57,14 @@ public class SetWallpaperActivity extends AppCompatActivity {
     }
 
     private void setWallpaper() {
-
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-        wallpaperManager.setWallpaperOffsetSteps(1, 1);
-
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        wallpaperManager.suggestDesiredDimensions(size.x, size.y);
-
-
-        Drawable drawable = getResources().getDrawable(wallpaper_drawable_id);
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+        // TODO Auto-generated method stub
+        WallpaperManager myWallpaperManager
+                = WallpaperManager.getInstance(getApplicationContext());
         try {
-            wallpaperManager.setBitmap(bitmap);
+            myWallpaperManager.setResource(wallpaper_drawable_id);
+            //myWallpaperManager.setWallpaperOffsetSteps(1, 1);
         } catch (IOException e) {
+            // TODO Auto-generated catch block
             Toast.makeText(this, "Error when loading wallpaper", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }

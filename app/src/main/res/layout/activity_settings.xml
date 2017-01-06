@@ -17,12 +17,36 @@
     tools:context="com.hoymm.damianmuca.snowingeffect.SettingsActivity"
     android:background="@color/backgroundColor"
     >
-        <!-- Wallpapaer choosing -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent">
-
-
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:orientation="horizontal"
+            android:weightSum="100"
+            android:gravity="center"
+            android:id="@+id/wallpaper_choosing_panel_id"
+            >
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="@string/back"
+                android:onClick="nextWallpaperClicked"
+                />
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="60"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@raw/wallpaper_0"
+                android:id="@+id/wallpaper_choosing_panel_iv_id"
+                />
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="@string/next"
+                android:onClick="previousWallpaperClicked"
+                />
         </LinearLayout>
 
 

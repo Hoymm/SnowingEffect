@@ -8,4 +8,6 @@
     <string name="snowflakes_types">Snowflakes Types</string>
     <string name="set_wallpaper">Set Wallpaper</string>
     <string name="settings_dotdotdot">Settings...</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
 </resources>
