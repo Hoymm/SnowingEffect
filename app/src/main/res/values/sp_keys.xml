@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Settings -->
+        <!-- cb (means) check box -->
     <string name="SP_use_accelerometer_cb">com.hoymm.damianmuca.snowingeffect.use_accelerometer_cb</string>
     <string name="SP_snowflakes_amount">com.hoymm.damianmuca.snowingeffect.snowflakes_amount</string>
     <string name="SP_snowflakes_speed">com.hoymm.damianmuca.snowingeffect.snowflakes_speed</string>

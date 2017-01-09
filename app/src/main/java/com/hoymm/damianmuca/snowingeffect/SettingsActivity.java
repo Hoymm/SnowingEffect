@@ -131,19 +131,19 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void readSP() {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        useAccelerometerToDetect =
-                sharedPref.getBoolean(getResources().getString(R.string.SP_use_accelerometer_cb), true);
-        snowflakeType1 =
-                sharedPref.getBoolean(getResources().getString(R.string.SP_snowflakes_type_1_cb), true);
-        snowflakeType2 =
-                sharedPref.getBoolean(getResources().getString(R.string.SP_snowflakes_type_2_cb), true);
-        snowflakeType3 =
-                sharedPref.getBoolean(getResources().getString(R.string.SP_snowflakes_type_3_cb), true);
+        useAccelerometerToDetect = sharedPref.getBoolean(getResources().getString
+                (R.string.SP_use_accelerometer_cb), StaticValues.isUseAccelerometrByDefault());
+        snowflakeType1 = sharedPref.getBoolean(getResources().getString
+                (R.string.SP_snowflakes_type_1_cb), StaticValues.isUseFirstSnowflakeByDefault());
+        snowflakeType2 = sharedPref.getBoolean(getResources().getString
+                (R.string.SP_snowflakes_type_2_cb), StaticValues.isUseSecondSnowflakeByDefault());
+        snowflakeType3 = sharedPref.getBoolean(getResources().getString
+                        (R.string.SP_snowflakes_type_3_cb), StaticValues.isUseThirdSnowflakeByDefault());
 
-        snowflakesAmount =
-                sharedPref.getInt(getResources().getString(R.string.SP_snowflakes_amount), StaticValues.getSnowflakesAmountByDefault());
-        snowflakesSpeed =
-                sharedPref.getInt(getResources().getString(R.string.SP_snowflakes_speed), StaticValues.getSnowflakesSpeedByDefault());
+        snowflakesAmount = sharedPref.getInt(getResources().getString(R.string.SP_snowflakes_amount)
+                        , StaticValues.getSnowflakesAmountByDefault());
+        snowflakesSpeed = sharedPref.getInt(getResources().getString(R.string.SP_snowflakes_speed)
+                        , StaticValues.getSnowflakesSpeedByDefault());
     }
 
     @Override

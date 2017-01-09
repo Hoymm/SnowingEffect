@@ -21,7 +21,7 @@
         <item name="android:adjustViewBounds">true</item>
     </style>
 
-    <!-- Snowflakes Settings LinearLayout Style -->
+    <!-- SnowflakesGeneratorClass Settings LinearLayout Style -->
     <style name="snowflakes_settings_ll">
         <!-- Customize your theme here. -->
         <item name="android:layout_width">match_parent</item>

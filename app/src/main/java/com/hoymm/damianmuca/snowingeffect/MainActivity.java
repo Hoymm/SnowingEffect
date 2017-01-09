@@ -16,6 +16,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
+        Intent setWallpaperActivity = new Intent(this, SetWallpaperActivity.class);
+        startActivity(setWallpaperActivity);
     }
 
     public void openSettingsActivity(View view) {
