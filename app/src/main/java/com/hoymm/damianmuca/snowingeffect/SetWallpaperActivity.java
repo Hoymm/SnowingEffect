@@ -7,26 +7,22 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.IOException;
 
 public class SetWallpaperActivity extends AppCompatActivity implements Runnable {
     SharedPreferences sharedPref;
-    SnowflakesGeneratorClass snowflakesGeneratorClass;
+    SnowGeneratorClass snowGenerator;
 
 
     // implements runnable objects
     private Thread myThread = null;
     boolean isThatOk = true;
     // RUN PAUSE TIME
-    private static final int RUN_TIME_PAUSE = 340;
+    private static final int RUN_TIME_PAUSE = 120;
 
     ImageView currentWallpaperIV;
     int wallpaper_drawable_id;
@@ -34,10 +30,18 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_wallpaper);
+    }
+    @Override
+    protected void onResume() {
+        // read SharedPreferences, and refresh ImageView
+        readSPAndRefreshIV();
 
 
+
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         // create object of snowflakesGeneratorClass, that will generate snowflakes over screen
-        snowflakesGeneratorClass = new SnowflakesGeneratorClass(
+
+        snowGenerator = new SnowGeneratorClass(
                 this                                                // CONTEXT
                 , getWindow().getDecorView().getRootView()          // VIEW
                 , sharedPref.getInt(getResources().getString        // SNOWFLAKES AMOUNT
@@ -53,17 +57,13 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
                 , sharedPref.getBoolean(getResources().getString    // if use THIRD SNOWFLAKE
                 (R.string.SP_snowflakes_type_3_cb), StaticValues.isUseThirdSnowflakeByDefault())
         );
+        snowGenerator.onResume();
 
-    }
-
-    @Override
-    protected void onResume() {
-        // read SharedPreferences, and refresh ImageView
-        readSPAndRefreshIV();
         isThatOk = true;
         // RUN function objects resume
         myThread = new Thread(this);
         myThread.start();
+
         super.onResume();
     }
 
@@ -72,8 +72,6 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
 
         // RUN function objects pause
         isThatOk = false;
-
-
         try {
             myThread.join();
         } catch (InterruptedException e) {
@@ -81,6 +79,7 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
         }
         myThread = null;
 
+        snowGenerator.onPause();
 
         super.onPause();
     }
@@ -99,6 +98,7 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
         Intent settingsActivity = new Intent(this, SettingsActivity.class);
         settingsActivity.putExtra(getString(R.string.EK_show_wallpaper_changing), "yes");
         startActivity(settingsActivity);
+        finish();
     }
 
     public void setThisWallpaperButtonClicked(View view) {

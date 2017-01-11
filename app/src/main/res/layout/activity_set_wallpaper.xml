@@ -22,6 +22,7 @@
             style="@style/wallpapers_buttons_style"
             android:text="@string/settings_dotdotdot"
             android:onClick="openSettingsWithWallpaperButtonClicked"
+            android:id="@+id/settings_button_id"
             />
         <Button
             style="@style/wallpapers_buttons_style"

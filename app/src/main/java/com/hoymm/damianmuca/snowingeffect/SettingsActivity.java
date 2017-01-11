@@ -148,6 +148,15 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+
+        Intent intent = getIntent();
+        String ifEnableWallpaperChoosing = intent.getStringExtra(getString(R.string.EK_show_wallpaper_changing));
+
+        // yes, go back to SetWallpaper Activity
+        if (ifEnableWallpaperChoosing.equals("yes")){
+            Intent setWallpaperActivity = new Intent(this, SetWallpaperActivity.class);
+            startActivity(setWallpaperActivity);
+        }
         super.onBackPressed();
     }
 
