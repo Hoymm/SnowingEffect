@@ -22,8 +22,8 @@ public class StaticValues {
     private static final int SNOWFLAKES_MAX_SIZE = 8;  // Interval 1 - 100
     private static final int SNOWFLAKES_MIN_SIZE = 3;  // Interval 1 - 100
     // WIND
-    private static final int WIND_DEGREES_MIN = 89;
-    private static final int WIND_DEGREES_MAX = 91;
+    private static final int WIND_DEGREES_MIN = 86;
+    private static final int WIND_DEGREES_MAX = 94;
     private static final float WIND_INTENSITY_MIN = 0.00001f;
     private static final float WIND_INTENSITY_MAX = 0.00006f;
     // DEFAULT SETTINGS
