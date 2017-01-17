@@ -11,13 +11,13 @@ public class StaticValues {
     // FALLING TIME
     private static final float SNOWFLAKES_FALLING_TIME = 10000;  // Interval >1
     // FALLING SPEED
-    private static final float SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.0007f;  // Interval >1
+    private static final float SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.001f;  // Interval >1
     private static final float SNOWFLAKES_SPEED_MULTIPLER_MAX = 0.002f;  // Interval >1
     // APLHA
     private static final int SNOWFLAKES_ALPHA_DURATION = 2500;
     // ROTATION
-    private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 0;  // Interval >1
-    private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 280;  // Interval >1
+    private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 1;  // Interval >1
+    private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 16;  // Interval >1
     // SIZE
     private static final int SNOWFLAKES_MAX_SIZE = 8;  // Interval 1 - 100
     private static final int SNOWFLAKES_MIN_SIZE = 3;  // Interval 1 - 100

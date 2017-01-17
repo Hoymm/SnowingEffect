@@ -157,6 +157,7 @@ public class SettingsActivity extends AppCompatActivity {
             Intent setWallpaperActivity = new Intent(this, SetWallpaperActivity.class);
             startActivity(setWallpaperActivity);
         }
+        finish();
         super.onBackPressed();
     }
 

@@ -13,14 +13,10 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-public class SetWallpaperActivity extends AppCompatActivity implements Runnable {
+public class SetWallpaperActivity extends AppCompatActivity {
     SharedPreferences sharedPref;
     SnowGeneratorClass snowGenerator;
 
-
-    // implements runnable objects
-    private Thread myThread = null;
-    boolean isThatOk = true;
     // RUN PAUSE TIME
     private static final int RUN_TIME_PAUSE = 120;
 
@@ -40,7 +36,6 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         // create object of snowflakesGeneratorClass, that will generate snowflakes over screen
-
         snowGenerator = new SnowGeneratorClass(
                 this                                                // CONTEXT
                 , getWindow().getDecorView().getRootView()          // VIEW
@@ -59,28 +54,12 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
         );
         snowGenerator.onResume();
 
-        isThatOk = true;
-        // RUN function objects resume
-        myThread = new Thread(this);
-        myThread.start();
-
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-
-        // RUN function objects pause
-        isThatOk = false;
-        try {
-            myThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        myThread = null;
-
         snowGenerator.onPause();
-
         super.onPause();
     }
 
@@ -116,17 +95,6 @@ public class SetWallpaperActivity extends AppCompatActivity implements Runnable 
             // TODO Auto-generated catch block
             Toast.makeText(this, "Error when loading wallpaper", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void run() {
-        while (isThatOk){
-            try {
-                Thread.sleep(RUN_TIME_PAUSE);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

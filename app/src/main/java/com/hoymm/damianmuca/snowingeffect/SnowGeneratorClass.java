@@ -3,15 +3,17 @@ package com.hoymm.damianmuca.snowingeffect;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.animation.Interpolator;
 import android.widget.RelativeLayout;
 
 import com.plattysoft.leonids.ParticleSystem;
+import com.plattysoft.leonids.modifiers.AlphaModifier;
+import com.plattysoft.leonids.modifiers.ParticleModifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +32,9 @@ public class SnowGeneratorClass implements Runnable{
 
 
     // other objects
-    private float devWidth, devHeight;
+    private float devWidth, devHeight, density;
     private List<ParticleSystem> mySnowflakesFromTop_PL;
+    private List <Boolean> isEmittingCurrently;
     private int howManyTypesOfSnowflakes = 0;
 
     // implements runnable objects
@@ -48,7 +51,8 @@ public class SnowGeneratorClass implements Runnable{
         return howManyTypesOfSnowflakes;
     }
 
-    public SnowGeneratorClass(Context context
+    public SnowGeneratorClass(
+            Context context
             , View view
             , int snowflakesAmount
             , int snowflakesFallingSpeed
@@ -62,7 +66,7 @@ public class SnowGeneratorClass implements Runnable{
         myContext = context;
         this.view = view;
         this.snowflakesAmount = snowflakesAmount/3 == 0 ? 3 : snowflakesAmount-(snowflakesAmount%3);
-        this.snowflakesFallingSpeed = snowflakesFallingSpeed+1;
+        this.snowflakesFallingSpeed = snowflakesFallingSpeed+10;
         this.useAccelerometrEnabled = useAccelerometrEnabled;
         this.isFirstSnowflakeActive = isFirstSnowflakeActive;
         this.isSecondSnowflakeActive = isSecondSnowflakeActive;
@@ -73,12 +77,14 @@ public class SnowGeneratorClass implements Runnable{
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         devWidth = displayMetrics.widthPixels;
         devHeight = displayMetrics.heightPixels;
+        density = displayMetrics.density;
 
 
     }
 
     private void generateSnowing() {
         mySnowflakesFromTop_PL = new ArrayList<>();
+        isEmittingCurrently = new ArrayList<>();
 
         howManyTypesOfSnowflakes = isFirstSnowflakeActive ? howManyTypesOfSnowflakes+1 : howManyTypesOfSnowflakes;
         howManyTypesOfSnowflakes = isSecondSnowflakeActive ? howManyTypesOfSnowflakes+1 : howManyTypesOfSnowflakes;
@@ -99,7 +105,6 @@ public class SnowGeneratorClass implements Runnable{
 
 
     public float getDevHeight() {
-
         return devHeight;
     }
 
@@ -111,37 +116,45 @@ public class SnowGeneratorClass implements Runnable{
 
         for (int i = 0; i < snowflakesAmount/howManyTypesOfSnowflakes; ++i) {
             mySnowflakesFromTop_PL.add(generateParticleSnowfallObject(drawable_id));
+            isEmittingCurrently.add(false);
         }
     }
-
+    int timeToDie;
     private ParticleSystem generateParticleSnowfallObject(int drawable_id) {
-        Drawable myCurSnowDrawable = ContextCompat.getDrawable(myContext, drawable_id);
-        Bitmap bitmap = ((BitmapDrawable) myCurSnowDrawable).getBitmap();
+
+        Bitmap bMap = BitmapFactory.decodeResource(myContext.getResources(), drawable_id);
         int newSnowflakeSize = getRandomDrawableSize();
-        myCurSnowDrawable = new BitmapDrawable
-                (myContext.getResources(), Bitmap.createScaledBitmap(bitmap, newSnowflakeSize, newSnowflakeSize, true));
+        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, newSnowflakeSize, newSnowflakeSize, true);
 
-        Interpolator interpolator = new Interpolator() {
-            @Override
-            public float getInterpolation(float input) {
-                return input;
-            }
-        };
 
-        ParticleSystem resultPS = new ParticleSystem((Activity) myContext, snowflakesAmount, myCurSnowDrawable, 10000)
-                .setSpeedModuleAndAngleRange(StaticValues.getSnowflakesSpeedMultiplerMin() * snowflakesFallingSpeed
+        timeToDie = (int)((Math.sqrt(Math.pow(devWidth,2)+Math.pow(devHeight,2)) * density));
+                //(StaticValues.getSnowflakesSpeedMultiplerMin() * snowflakesFallingSpeed * 23));
+                //(StaticValues.getSnowflakesSpeedMultiplerMin() * snowflakesFallingSpeed);
+        float speed = StaticValues.getSnowflakesSpeedMultiplerMin() * snowflakesFallingSpeed * 100;
+        float amountDivider = timeToDie / (StaticValues.getSnowflakesSpeedMultiplerMin() * 148);
+        timeToDie = (int)(timeToDie/(StaticValues.getSnowflakesSpeedMultiplerMin() * snowflakesFallingSpeed * 4));
+
+        // Alpha fading in modifier
+        ParticleModifier fadingInModifier = new AlphaModifier(0, 255, 0, 2000);
+
+
+        ParticleSystem resultPS = new ParticleSystem
+                ((Activity) myContext, timeToDie, bMapScaled, timeToDie)
+                .setSpeedModuleAndAngleRange(
+                        StaticValues.getSnowflakesSpeedMultiplerMin() * snowflakesFallingSpeed
                         , StaticValues.getSnowflakesSpeedMultiplerMax() * snowflakesFallingSpeed
-                        , StaticValues.getWindDegreesMin(), StaticValues.getWindDegreesMax())
-                .setRotationSpeed(StaticValues.getSnowflakesRotationMinSpeed() +
+                        , StaticValues.getWindDegreesMin()
+                        , StaticValues.getWindDegreesMax())
+                .setRotationSpeed(speed*(StaticValues.getSnowflakesRotationMinSpeed() +
                         (int) (Math.random() * ((StaticValues.getSnowflakesRotationMaxSpeed() -
-                                StaticValues.getSnowflakesRotationMinSpeed()) + 1)))
-                .setAcceleration(StaticValues.getWindIntensityMin() + (int) (Math.random() *
+                                StaticValues.getSnowflakesRotationMinSpeed()) + 1))))
+                /*.setAcceleration(StaticValues.getWindIntensityMin() + (int) (Math.random() *
                                 ((StaticValues.getWindIntensityMax() - StaticValues.getWindIntensityMin()) + 1)) *
                                 snowflakesFallingSpeed
                         , StaticValues.getWindDegreesMin() + (int) (Math.random() *
                                 ((StaticValues.getWindDegreesMax() -
-                                        StaticValues.getWindDegreesMin()) + 1)))
-                .setFadeOut(2000, interpolator)
+                                        StaticValues.getWindDegreesMin()) + 1)))*/
+                //.addModifier(fadingInModifier)
                 ;
         return resultPS;
     }
@@ -170,9 +183,10 @@ public class SnowGeneratorClass implements Runnable{
     public void onResume(){
         isThatOk = true;
 
-        generateSnowing();
         curIndex = 0;
         // RUN function objects resume
+
+        generateSnowing();
         myThread = new Thread(this);
         myThread.start();
     }
@@ -180,9 +194,6 @@ public class SnowGeneratorClass implements Runnable{
     void onPause(){
         // RUN function objects pause
         isThatOk = false;
-        for (int i = 0 ; i < mySnowflakesFromTop_PL.size() ; ++i){
-            mySnowflakesFromTop_PL.get(i).stopEmitting();
-        }
         try {
             myThread.join();
         } catch (InterruptedException e) {
@@ -193,43 +204,44 @@ public class SnowGeneratorClass implements Runnable{
 
     }
 
-    ArrayList<Integer> myRandomIndexesSnowflakesFromRoof;
+    private ArrayList<Integer> myRandomIndexesSnowflakesFromRoof;
+    private long lastTimeSinceStartedEmitting = 0;
+
     @Override
     public void run() {
-        while (isThatOk) {
+       while (isThatOk) {
             // initialization
             try {
-                if (curIndex < mySnowflakesFromTop_PL.size()) {
+                if (curIndex < mySnowflakesFromTop_PL.size()
+                        && (System.currentTimeMillis()-lastTimeSinceStartedEmitting) > 30000/snowflakesAmount
+                        ) {
                     if (curIndex == 0)
                         initRandomListIndexesFromRoofSnowflakes();
                     mySnowflakesFromTop_PL.get(curIndex);
 
                     final int randomIndex = getRandomIndexSnowflakesRoof();
-                    final float spaceBetweenSnowflakes = devWidth / (snowflakesAmount / this.getHowManyTypesOfSnowflakes());
-                    final int emitX = (int) spaceBetweenSnowflakes *
-                            (randomIndex % snowflakesAmount / howManyTypesOfSnowflakes);
-
+                    int lastStartedEmittingIndex = randomIndex;
                     synchronized (this) {
                         ((Activity) myContext).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mySnowflakesFromTop_PL.get(randomIndex)
-                                        .emit(emitX + (int) (-spaceBetweenSnowflakes / 2 + (Math.random() *
-                                                        (spaceBetweenSnowflakes / 2 + spaceBetweenSnowflakes / 2)))
+                                        .emit((int) (Math.random() * devWidth)
                                                 , -50
                                                 , 1);
+
+                                isEmittingCurrently.set(randomIndex,true);
                             }
                         });
                     }
+                    lastTimeSinceStartedEmitting = System.currentTimeMillis();
+                    lastStartedEmittingIndex = randomIndex;
                     curIndex++;
+                    Thread.sleep(300);
+                    mySnowflakesFromTop_PL.get(lastStartedEmittingIndex).stopEmitting();
+                    isEmittingCurrently.set(lastStartedEmittingIndex, false);
                 }
-                // UPDATE EMIT POINT
-                else {
-                    mySnowflakesFromTop_PL.get((int)(Math.random()*mySnowflakesFromTop_PL.size()))
-                            .updateEmitPoint((int)(Math.random()*devWidth)
-                                    , -50);
-                }
-                Thread.sleep(900/mySnowflakesFromTop_PL.size());
+                Thread.sleep(40);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
