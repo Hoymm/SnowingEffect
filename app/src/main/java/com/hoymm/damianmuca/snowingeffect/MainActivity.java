@@ -1,14 +1,9 @@
 package com.hoymm.damianmuca.snowingeffect;
 
-import android.app.WallpaperManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,9 +12,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        initializateDrawablesForAniamtion();
         Intent setWallpaperActivity = new Intent(this, SetWallpaperActivity.class);
         startActivity(setWallpaperActivity);
+    }
+
+    private void initializateDrawablesForAniamtion() {
+
     }
 
     public void openSettingsActivity(View view) {

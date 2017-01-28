@@ -4,7 +4,9 @@
     android:id="@+id/activity_set_wallpaper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     tools:context="com.hoymm.damianmuca.snowingeffect.SetWallpaperActivity">
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,4 +32,13 @@
             android:onClick="setThisWallpaperButtonClicked"
             />
     </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:text="asad"
+        android:id="@+id/temp_sensor_tv_id"
+        android:textSize="45sp"
+        />
+
 </RelativeLayout>

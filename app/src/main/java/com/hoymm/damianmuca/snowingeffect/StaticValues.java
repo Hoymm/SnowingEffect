@@ -1,10 +1,17 @@
 package com.hoymm.damianmuca.snowingeffect;
 
+import android.graphics.drawable.Drawable;
+
+import java.util.List;
+
 /**
  * Created by root on 06.01.17.
  */
 
 public class StaticValues {
+    private static List <Drawable> firstSnowflakeType_L = null;
+    private static List <Drawable> secondSnowflakeType_L = null;
+    private static List <Drawable> thirdSnowflakeType_L = null;
     // MODIFY BELOW IF U WANT CHANGE DEFAULT VALUE OF SPEED
     // MODIFY BELOW IF U WANT CHANGE SPEEDING, BUT LEFT DEFAULT AS IT IS
 
@@ -27,13 +34,54 @@ public class StaticValues {
     private static final float WIND_INTENSITY_MIN = 0.00001f;
     private static final float WIND_INTENSITY_MAX = 0.00006f;
     // DEFAULT SETTINGS
-    private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 5; // Interval 1 - 100
+    private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 25; // Interval 1 - 100
     private static final int SNOWFLAKES_SPEED_BY_DEFAULT = 5;  // Interval 1 - 100
     private static final boolean USE_ACCELEROMETR_BY_DEFAULT = true;
     private static final boolean USE_FIRST_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_SECOND_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_THIRD_SNOWFLAKE_BY_DEFAULT = true;
     private static final int HOW_MANY_TYPES_OF_SNOWFLAKES = 3;
+
+
+
+    public static List<Drawable> getThirdSnowflakeType_L() {
+        return thirdSnowflakeType_L;
+    }
+
+    public static void setThirdSnowflakeType_L(List<Drawable> thirdSnowflakeType_L) {
+        StaticValues.thirdSnowflakeType_L = thirdSnowflakeType_L;
+    }
+
+    public static void addItemToThirdSnowflakeType(Drawable drawable){
+        StaticValues.thirdSnowflakeType_L.add(drawable);
+    }
+
+    public static List<Drawable> getSecondSnowflakeType_L() {
+        return secondSnowflakeType_L;
+    }
+
+    public static void setSecondSnowflakeType_L(List<Drawable> secondSnowflakeType_L) {
+        StaticValues.secondSnowflakeType_L = secondSnowflakeType_L;
+    }
+
+    public static void addItemToSecondSnowflakeType(Drawable drawable){
+        StaticValues.secondSnowflakeType_L.add(drawable);
+    }
+
+    public static List<Drawable> getFirstSnowflakeType_L() {
+        return firstSnowflakeType_L;
+    }
+
+    public static void setFirstSnowflakeType_L(List<Drawable> firstSnowflakeType_L) {
+        StaticValues.firstSnowflakeType_L = firstSnowflakeType_L;
+    }
+
+    public static void addItemToFirstSnowflakeType(Drawable drawable){
+        StaticValues.thirdSnowflakeType_L.add(drawable);
+    }
+
+
+
 
     public static float getSnowflakesFallingTime() {
         return SNOWFLAKES_FALLING_TIME;
