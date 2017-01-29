@@ -27,6 +27,8 @@ public class SetWallpaperActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getSupportActionBar()!=null)
+        getSupportActionBar().hide(); //<< HIDE TOP BAR
         setContentView(R.layout.activity_set_wallpaper);
 
 

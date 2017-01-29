@@ -13,6 +13,7 @@
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="false"
         android:largeHeap="true"
+
         >
         <activity android:name=".MainActivity">
             <intent-filter>

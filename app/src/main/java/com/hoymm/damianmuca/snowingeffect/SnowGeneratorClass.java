@@ -5,9 +5,6 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -24,9 +21,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.plattysoft.leonids.modifiers.AlphaModifier;
-import com.plattysoft.leonids.modifiers.ParticleModifier;
 
 import java.util.ArrayList;
 
@@ -53,9 +47,6 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
     // accelerometer
     OrientationEventListener myOrientationEventListener;
     private int myDegrees = 0;
-
-
-    private int tempImageSize = 50;
 
     // implements runnable objects
     private Thread myThread = null;
@@ -88,7 +79,7 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
 
         devWidth = displayMetrics.widthPixels;
         devHeight = displayMetrics.heightPixels;
-        radius = Math.sqrt(Math.pow(devWidth/2,2) + Math.pow(devHeight/2,2))+tempImageSize;
+        radius = (Math.sqrt(Math.pow(devWidth/2,2) + Math.pow(devHeight/2,2))+100);
         centerX =  devWidth/2;
         centerY = devHeight/2;
         density = displayMetrics.density;
@@ -99,14 +90,11 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
 
         mainRelativeLayout = (RelativeLayout) view.findViewById(R.id.activity_set_wallpaper);
 
-        // init snowflakes
+        // init snowflakes by id drawables
         mySnowflakesAL = new ArrayList<>();
-        for (int i = 0 ; i < this.snowflakesAmount ; ++i) {
-            mySnowflakesAL.add(new Snowflake());
-        }
     }
 
-
+    boolean sensorChecked = false;
     private void initAccelerometer() {
         // Check orientation for changing direction of smoke rising
         myOrientationEventListener
@@ -138,10 +126,10 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
                     currentDegrees -= 360;
                 }
 
-                myDegrees = currentDegrees;
-                currentDegrees = 360 - currentDegrees;
+                myDegrees = currentDegrees; // goes from left to top (9 hour clockwise) 0 degree to 360
                 TextView tempSensor = (TextView) view.findViewById(R.id.temp_sensor_tv_id);
-                tempSensor.setText(String.valueOf(currentDegrees));
+                tempSensor.setText(String.valueOf(myDegrees));
+                sensorChecked = true;
             }
         };
         if (myOrientationEventListener.canDetectOrientation()) {
@@ -151,52 +139,78 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             Toast.makeText(myContext, "Can't DetectOrientation", Toast.LENGTH_LONG).show();
         }
     }
+
+    // Snowflake class create snowflake animation and controls it
     private class Snowflake {
         private long startedTime;
         private ImageView mySnowflakeIV;
         AnimatorSet animatorSet;
+        private boolean beginHidingSnowflakeBeforeDie, beginShowingSnowflakeAgain;
+        public Snowflake(int drawableId) {
 
-        public Snowflake() {
-
+            // initialization
             mySnowflakeIV = new ImageView(myContext);
-            mySnowflakeIV.setImageDrawable(ContextCompat.getDrawable(myContext,R.drawable.menu_snow_1));
-            mySnowflakeIV.setLayoutParams(new RelativeLayout.LayoutParams(50,50));
-            mySnowflakeIV.setX(devWidth/2);
-            mySnowflakeIV.setY(devHeight/2);
-            mySnowflakeIV.setAlpha(0f);
+            mySnowflakeIV.setImageDrawable(ContextCompat.getDrawable(myContext,drawableId));
+            beginHidingSnowflakeBeforeDie = false;
+            beginShowingSnowflakeAgain = true;
+
+            // drawable size
+            int snowflakeWidth = getRandomDrawableSize();
+            mySnowflakeIV.setLayoutParams(new RelativeLayout.LayoutParams(snowflakeWidth,snowflakeWidth));
+
+            // set new position of drawable
+            generateNewStartPosition();
+
+            // add drawable to screen
             mainRelativeLayout.addView(mySnowflakeIV);
 
-
-
+            // create animation
+            mySnowflakeIV.setAlpha(0f);
             animatorSet = createAnimation(true);
             startedTime = System.currentTimeMillis();
+        }
+
+        void onPause(){
+            mySnowflakeIV.setImageDrawable(null);
+        }
+
+        private void generateNewStartPosition() {
+            // prevent from myDegrees to by 0, (because 0 and 360 is the same number)
+            myDegrees = myDegrees == 0 ? 360 : myDegrees;
+            // generate random angle (myDegrees-90;myDegrees+90)
+            int randomAngle = (int) ((myDegrees-90) + Math.random()*(180)+1);
+            int randomRadius =  1 + (int)(Math.random()*(radius-1)+1);
+            randomRadius /= 3;
+
+            mySnowflakeIV.setX(devWidth/2 - (float)(Math.sin(Math.toRadians(randomAngle)) * randomRadius));
+            mySnowflakeIV.setY(devHeight/2 - (float)(Math.cos(Math.toRadians(randomAngle)) * randomRadius));
+
+           /* Log.e("ANGLE ADJUST: ","|| myDegrees: " + myDegrees + "\t\t|| randomAngle: " + randomAngle + "\t\t|| 360-randomAngle: "
+                    + (360-randomAngle) + "\t\t|| (360-randomAngle)%90: "
+                    + (360-randomAngle)%90 + "\t ||X: " + result.X + "\t||Y: " + result.Y);*/
         }
 
         void startAnimation(){
             animatorSet.start();
         }
 
-        private int counter = 0;
-        private AnimatorSet createAnimation(boolean firstAnimationStart) {
-            AnimatorSet animatorSet = new AnimatorSet();
-            animatorSet.addListener(new Animator.AnimatorListener() {
+        private AnimatorSet createAnimation(boolean animationNewlyStarted) {
+            AnimatorSet resultAnimatorSet = new AnimatorSet();
+            resultAnimatorSet.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    // When animation ends hide completely snowflake
-                    if (counter%60 == 0)
-                        ((Activity) myContext).runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mySnowflakeIV.setAlpha(0f);
-                            }
-                        });
-
-                    Log.e("ANIMATION COUNTER: " ,String.valueOf(++counter));
+                    // When animation is to die then hide completely snowflake before it's death
+                    if (startedTime+15000L < System.currentTimeMillis()
+                            || mySnowflakeIV.getX() > radius * 1.1 || mySnowflakeIV.getX() < 0 - radius * 1.1
+                            || mySnowflakeIV.getY() > radius * 1.1 || mySnowflakeIV.getY() < 0 - radius * 1.1) {
+                        beginHidingSnowflakeBeforeDie = true; // means that you hide it, then change position
+                        beginShowingSnowflakeAgain = true;  // ... and show it
+                        startedTime = System.currentTimeMillis();
+                    }
                     createAnimation(false);
                 }
 
@@ -210,21 +224,43 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
                 }
             });
 
-            animatorSet.play(newYPosValueAnimator())
-                    .with(rotationAnimation())
-                    .with(alphaAnimation());
-            animatorSet.setDuration(200);
-
             // first start is synchronized from main run thread, next are invoked recursively
-            if (!firstAnimationStart)
-                animatorSet.start();
-            return animatorSet;
+
+            if (beginHidingSnowflakeBeforeDie){
+                resultAnimatorSet
+                        .play(new_YorX_PosValueAnimator(true))
+                        .with(new_YorX_PosValueAnimator(false))
+                        .with(rotationAnimation())
+                        .with(alphaShowAnimation(false));
+                if (mySnowflakeIV.getAlpha() < StaticValues.getSnowflakesAlphaDuration())
+                    beginHidingSnowflakeBeforeDie = false;
+            }
+            else {
+                resultAnimatorSet
+                        .play(new_YorX_PosValueAnimator(true))
+                        .with(new_YorX_PosValueAnimator(false))
+                        .with(rotationAnimation())
+                        .with(alphaShowAnimation(true));
+            }
+            // animation refresh (heading direction)
+            resultAnimatorSet.setDuration(StaticValues.getAnimReactionDelay());
+
+            // if we start our animation newly, do not invoke method below
+            if (!animationNewlyStarted)
+                resultAnimatorSet.start();
+
+
+            return resultAnimatorSet;
         }
 
-        private Animator alphaAnimation() {
+        private Animator alphaShowAnimation(boolean showingEffect) {
             ValueAnimator alphaAnimation;
-            alphaAnimation = ValueAnimator.ofFloat(mySnowflakeIV.getAlpha()
-                    , mySnowflakeIV.getAlpha()+0.03f);
+
+            // if showing alpha then addition, otherwise substraction
+            float alphaChange = showingEffect
+                    ? StaticValues.getSnowflakesAlphaDuration() : - StaticValues.getSnowflakesAlphaDuration();
+
+            alphaAnimation = ValueAnimator.ofFloat(mySnowflakeIV.getAlpha(), mySnowflakeIV.getAlpha()+alphaChange);
             alphaAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
@@ -252,47 +288,34 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             return rotation;
         }
 
-        private ValueAnimator newYPosValueAnimator() {
-            ValueAnimator yPosChange;
+        private ValueAnimator new_YorX_PosValueAnimator(final boolean X_Axis) {
+            ValueAnimator result_YorX_PosChange;
             //1
-            yPosChange = ValueAnimator.ofFloat(mySnowflakeIV.getY()
-                    , mySnowflakeIV.getY()-15);
+            if (X_Axis)
+                result_YorX_PosChange = ValueAnimator.ofFloat(mySnowflakeIV.getX()
+                        , mySnowflakeIV.getX()-(5*density));
+            else
+                result_YorX_PosChange = ValueAnimator.ofFloat(mySnowflakeIV.getY()
+                    , (float)(mySnowflakeIV.getY()-density*(Math.sin(Math.toRadians(2*6))*12)));
             //2
-            yPosChange.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            result_YorX_PosChange.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
                     //3
                     float value = (float) animation.getAnimatedValue();
                     //4
-                    mySnowflakeIV.setTranslationY(value);
+                    if (X_Axis)
+                        mySnowflakeIV.setTranslationX(value);
+                    else
+                        mySnowflakeIV.setTranslationY(value);
                 }
 
             });
 
-            yPosChange.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
+            result_YorX_PosChange.setRepeatCount(0);
+            result_YorX_PosChange.setInterpolator(new LinearInterpolator());
 
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                }
-            });
-
-            yPosChange.setRepeatCount(0);
-            yPosChange.setInterpolator(new LinearInterpolator());
-
-            return yPosChange;
+            return result_YorX_PosChange;
         }
     }
 
@@ -321,6 +344,10 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
     }
 
     void onPause(){
+        for (int i = 0 ; i < mySnowflakesAL.size(); ++i){
+            mySnowflakesAL.get(i).onPause();
+            mySnowflakesAL.remove(i);
+        }
         // RUN function objects pause
         isThatOk = false;
         try {
@@ -333,24 +360,54 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
 
     }
 
-    private int animationList = 0;
+    private int animationList = 0, snowflakesInitIndex = 0;
     @Override
     public void run() {
         while (isThatOk) {
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(150);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            ((Activity) myContext).runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (animationList < mySnowflakesAL.size())
-                        mySnowflakesAL.get(animationList++).startAnimation();
-                }
-            });
+
+            // when accelerometer does not work yet, skip code
+            if (!sensorChecked){
+                continue;
+            }
+
+
+
+
+
+                // run next animation
+                ((Activity) myContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        // if no snoflake type enabled, then skip it
+                        if (isFirstSnowflakeActive || isSecondSnowflakeActive || isThirdSnowflakeActive)
+                            if (snowflakesInitIndex < snowflakesAmount) {
+                                if (isFirstSnowflakeActive) {
+                                    mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_1));
+                                    ++snowflakesInitIndex;
+                                }
+                                if (isSecondSnowflakeActive) {
+                                    mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_2));
+                                    ++snowflakesInitIndex;
+                                }
+                                if (isThirdSnowflakeActive) {
+                                    mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_3));
+                                    ++snowflakesInitIndex;
+                                }
+                            }
+
+
+                        if (animationList < mySnowflakesAL.size())
+                            mySnowflakesAL.get(animationList++).startAnimation();
+                    }
+                });
         }
     }
 
