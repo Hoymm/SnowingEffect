@@ -17,11 +17,14 @@ public class StaticValues {
 
     // ANIMATION REACTION DELAY (When changing device roation)
     private static final int ANIM_REACTION_DELAY = 1000;
+    // FALLING_ANGLE_VARIATION creates an effect of little wind, so the snowflakes DOESN'T fall PERPENDICULARLY TO THE GROUND
+    private static final short FALLING_ANGLE_VARIATION_MIN = -15;  // Interval (-45;0)
+    private static final short FALLING_ANGLE_VARIATION_MAX = 15;  // Interval (0;45)
     // FALLING TIME
     private static final float SNOWFLAKES_FALLING_TIME = 10000;  // Interval >1
     // FALLING SPEED
-    private static final float SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.001f;  // Interval >1
-    private static final float SNOWFLAKES_SPEED_MULTIPLER_MAX = 0.002f;  // Interval >1
+    private static final double SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.001d;  // Interval >1
+    private static final double SNOWFLAKES_SPEED_MULTIPLER_MAX = 0.002d;  // Interval >1
     // APLHA
     private static final float SNOWFLAKES_ALPHA_DURATION = 0.25f;  // Interval (0f;1f)
     // ROTATION
@@ -50,6 +53,14 @@ public class StaticValues {
 
     public static float getSnowflakesAlphaDuration() {
         return SNOWFLAKES_ALPHA_DURATION;
+    }
+
+    public static short getFallingAngleVariationMin() {
+        return FALLING_ANGLE_VARIATION_MIN;
+    }
+
+    public static short getFallingAngleVariationMax() {
+        return FALLING_ANGLE_VARIATION_MAX;
     }
 
     public static List<Drawable> getThirdSnowflakeType_L() {
@@ -119,7 +130,7 @@ public class StaticValues {
         return SNOWFLAKES_ROTATION_MAX_SPEED;
     }
 
-    public static float getSnowflakesSpeedMultiplerMin() {
+    public static double getSnowflakesSpeedMultiplerMin() {
         return SNOWFLAKES_SPEED_MULTIPLER_MIN;
     }
 
@@ -127,7 +138,7 @@ public class StaticValues {
         return HOW_MANY_TYPES_OF_SNOWFLAKES;
     }
 
-    public static float getSnowflakesSpeedMultiplerMax() {
+    public static double getSnowflakesSpeedMultiplerMax() {
         return SNOWFLAKES_SPEED_MULTIPLER_MAX;
     }
 

@@ -5,10 +5,12 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -28,7 +30,7 @@ import java.util.ArrayList;
  * Created by root on 10.01.17.
  */
 
-public class SnowGeneratorClass implements Runnable, SensorEventListener {
+class SnowGeneratorClass implements Runnable, SensorEventListener {
 
     // Objects initializated by constructor
     private Context myContext;
@@ -37,15 +39,20 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
     private boolean useAccelerometrEnabled, isFirstSnowflakeActive
             , isSecondSnowflakeActive, isThirdSnowflakeActive;
 
+    SharedPreferences sharedPref;
     private ArrayList<Snowflake> mySnowflakesAL;
 
     // other objects
-    private float devWidth, devHeight, density, centerX, centerY;
+    private float devWidth, devHeight, density, destinationPointX, destinationPointY;
+    // adjustDestinationAngle calculate random destination angle for current snowflake, then its is adding to the ground destination
+    // and imitates little wind, i.e. ground has 140 degrees then, we add value of adjustDestinationAngle (i.e. -9 degree),
+    // and we get designation angle eqaul to 131 degrees
+    private int adjustDestinationAngle =  StaticValues.getFallingAngleVariationMin()
+            + (int)(Math.random()*(StaticValues.getFallingAngleVariationMax()-StaticValues.getFallingAngleVariationMin())+1);
+
     private double radius;
     private int howManyTypesOfSnowflakes = 0;
-    RelativeLayout mainRelativeLayout;
-    // accelerometer
-    OrientationEventListener myOrientationEventListener;
+    private RelativeLayout mainRelativeLayout;
     private int myDegrees = 0;
 
     // implements runnable objects
@@ -66,6 +73,10 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
         myContext = context;
         this.view = view;
 
+        // get SharedPreferences
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(myContext);
+
+        // assing arguments
         this.snowflakesAmount = snowflakesAmount/3 == 0 ? 3 : snowflakesAmount-(snowflakesAmount%3);
         this.snowflakesFallingSpeed = snowflakesFallingSpeed+10;
         this.useAccelerometrEnabled = useAccelerometrEnabled;
@@ -80,8 +91,6 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
         devWidth = displayMetrics.widthPixels;
         devHeight = displayMetrics.heightPixels;
         radius = (Math.sqrt(Math.pow(devWidth/2,2) + Math.pow(devHeight/2,2))+100);
-        centerX =  devWidth/2;
-        centerY = devHeight/2;
         density = displayMetrics.density;
 
         // Initializate accelerometer
@@ -97,14 +106,13 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
     boolean sensorChecked = false;
     private void initAccelerometer() {
         // Check orientation for changing direction of smoke rising
-        myOrientationEventListener
-                = new OrientationEventListener(myContext, SensorManager.SENSOR_DELAY_NORMAL) {
+        OrientationEventListener myOrientationEventListener = new OrientationEventListener(myContext, SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
             public void onOrientationChanged(int currentDegrees) {
                 // TODO Auto-generated method stub
                 int naturalOrientation =
                         ((WindowManager) myContext.getSystemService(Context.WINDOW_SERVICE))
-                        .getDefaultDisplay().getRotation();
+                                .getDefaultDisplay().getRotation();
 
                 // ADJUST FOR OTHER DEVICES, some devices have other accelerometer values then others,
                 // we adjust it
@@ -143,9 +151,14 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
     // Snowflake class create snowflake animation and controls it
     private class Snowflake {
         private long startedTime;
+        private short fallingAngleVariation;
+
+        // snowflake falling speed is expressed by distance of resolution to cover over cycle animation (i.e. 1000 miliseconds)
+        private float snowflakeFallingSpeed;
         private ImageView mySnowflakeIV;
         AnimatorSet animatorSet;
         private boolean beginHidingSnowflakeBeforeDie, beginShowingSnowflakeAgain;
+        private int destinationRadius;
         public Snowflake(int drawableId) {
 
             // initialization
@@ -157,9 +170,14 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             // drawable size
             int snowflakeWidth = getRandomDrawableSize();
             mySnowflakeIV.setLayoutParams(new RelativeLayout.LayoutParams(snowflakeWidth,snowflakeWidth));
+            fallingAngleVariation = (short)(StaticValues.getFallingAngleVariationMin() +
+                    (Math.random()*(StaticValues.getFallingAngleVariationMax()-StaticValues.getFallingAngleVariationMin())+1));
 
             // set new position of drawable
             generateNewStartPosition();
+
+            // calculate falling speed for current snowflake
+            calculateFallingSpeedForCurrentSnowflake();
 
             // add drawable to screen
             mainRelativeLayout.addView(mySnowflakeIV);
@@ -168,6 +186,19 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             mySnowflakeIV.setAlpha(0f);
             animatorSet = createAnimation(true);
             startedTime = System.currentTimeMillis();
+
+            // destination point radius must be beyond RECTANGLE, and little beyond circle described on the rectangle
+            destinationRadius = (int)(radius * 1.15);
+        }
+
+        private void calculateFallingSpeedForCurrentSnowflake() {
+            // get random multiper
+            double snowflakeRandomMultipler = StaticValues.getSnowflakesSpeedMultiplerMin()
+                    + (Math.random()*(StaticValues.getSnowflakesSpeedMultiplerMax()-StaticValues.getSnowflakesSpeedMultiplerMin()));
+            // read settings speed (configured by user)
+            int speedConfiguredInAppSettings =  sharedPref.getInt(myContext.getResources().getString(R.string.SP_snowflakes_speed)
+                    , StaticValues.getSnowflakesSpeedByDefault());
+            snowflakeFallingSpeed = (float)(snowflakeRandomMultipler * speedConfiguredInAppSettings);
         }
 
         void onPause(){
@@ -175,7 +206,7 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
         }
 
         private void generateNewStartPosition() {
-            // prevent from myDegrees to by 0, (because 0 and 360 is the same number)
+            // prevent myDegrees to be 0, (because 0 and 360 is the same number)
             myDegrees = myDegrees == 0 ? 360 : myDegrees;
             // generate random angle (myDegrees-90;myDegrees+90)
             int randomAngle = (int) ((myDegrees-90) + Math.random()*(180)+1);
@@ -225,11 +256,11 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             });
 
             // first start is synchronized from main run thread, next are invoked recursively
-
+            generateNewRandomDestinationPoint();
             if (beginHidingSnowflakeBeforeDie){
                 resultAnimatorSet
-                        .play(new_YorX_PosValueAnimator(true))
-                        .with(new_YorX_PosValueAnimator(false))
+                        .play(new_XorY_DestinationParameters(true))     // - true == X parameter
+                        .with(new_XorY_DestinationParameters(false))     // - false == X parameter
                         .with(rotationAnimation())
                         .with(alphaShowAnimation(false));
                 if (mySnowflakeIV.getAlpha() < StaticValues.getSnowflakesAlphaDuration())
@@ -237,8 +268,8 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             }
             else {
                 resultAnimatorSet
-                        .play(new_YorX_PosValueAnimator(true))
-                        .with(new_YorX_PosValueAnimator(false))
+                        .play(new_XorY_DestinationParameters(true))     // - true == X parameter
+                        .with(new_XorY_DestinationParameters(false))     // - false == X parameter
                         .with(rotationAnimation())
                         .with(alphaShowAnimation(true));
             }
@@ -251,6 +282,15 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
 
 
             return resultAnimatorSet;
+        }
+
+        private void generateNewRandomDestinationPoint() {
+            float groundDegreeses = (myDegrees+adjustDestinationAngle+180)%360;
+            // prevent groundDegreeses to be 0, (because 0 and 360 is the same number)
+            groundDegreeses = groundDegreeses == 0 ? 360 : groundDegreeses;
+
+            destinationPointX = devWidth/2 - (float)(Math.sin(Math.toRadians(groundDegreeses)) * destinationRadius);
+            destinationPointY = devHeight/2 - (float)(Math.cos(Math.toRadians(groundDegreeses)) * destinationRadius);
         }
 
         private Animator alphaShowAnimation(boolean showingEffect) {
@@ -288,15 +328,24 @@ public class SnowGeneratorClass implements Runnable, SensorEventListener {
             return rotation;
         }
 
-        private ValueAnimator new_YorX_PosValueAnimator(final boolean X_Axis) {
+        private ValueAnimator new_XorY_DestinationParameters(final boolean X_Axis) {
+
             ValueAnimator result_YorX_PosChange;
+            float XDestination, YDestination;
+            double totalDistanceToCover = Math.sqrt(Math.pow(mySnowflakeIV.getX()-destinationPointX,2)
+                    +Math.pow(mySnowflakeIV.getY()-destinationPointY,2));
+            double currentDistanceToCover = snowflakeFallingSpeed;
+            double alphaAngle = mySnowflakeIV.getY() - destinationPointY
+
             //1
-            if (X_Axis)
+            if (X_Axis) {
                 result_YorX_PosChange = ValueAnimator.ofFloat(mySnowflakeIV.getX()
-                        , mySnowflakeIV.getX()-(5*density));
-            else
+                        , mySnowflakeIV.getX() - (5 * density));
+            }
+            else {
                 result_YorX_PosChange = ValueAnimator.ofFloat(mySnowflakeIV.getY()
-                    , (float)(mySnowflakeIV.getY()-density*(Math.sin(Math.toRadians(2*6))*12)));
+                        , (float) (mySnowflakeIV.getY() - density * (Math.sin(Math.toRadians(2 * 6)) * 12)));
+            }
             //2
             result_YorX_PosChange.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
