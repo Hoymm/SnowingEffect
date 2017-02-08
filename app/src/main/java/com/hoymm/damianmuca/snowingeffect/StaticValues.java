@@ -16,17 +16,15 @@ public class StaticValues {
     // MODIFY BELOW IF U WANT CHANGE SPEEDING, BUT LEFT DEFAULT AS IT IS
 
     // ANIMATION REACTION DELAY (When changing device roation)
-    private static final int ANIM_REACTION_DELAY = 1000;
     // FALLING_ANGLE_VARIATION creates an effect of little wind, so the snowflakes DOESN'T fall PERPENDICULARLY TO THE GROUND
-    private static final short FALLING_ANGLE_VARIATION_MIN = -15;  // Interval (-45;0)
-    private static final short FALLING_ANGLE_VARIATION_MAX = 15;  // Interval (0;45)
+    private static final short FALLING_ANGLE_VARIATION = 15;  // Interval
     // FALLING TIME
-    private static final float SNOWFLAKES_FALLING_TIME = 10000;  // Interval >1
+    private static final int SNOWFLAKES_FALLING_TIME = 15000;  // Interval >1
     // FALLING SPEED
     private static final double SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.001d;  // Interval >1
     private static final double SNOWFLAKES_SPEED_MULTIPLER_MAX = 0.002d;  // Interval >1
     // APLHA
-    private static final float SNOWFLAKES_ALPHA_DURATION = 0.25f;  // Interval (0f;1f)
+    private static final long SNOWFLAKES_ALPHA_DURATION = 2000;  // miliseconds
     // ROTATION
     private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 1;  // Interval >1
     private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 16;  // Interval >1
@@ -40,27 +38,22 @@ public class StaticValues {
     private static final float WIND_INTENSITY_MAX = 0.00006f;
     // DEFAULT SETTINGS
     private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 25; // Interval 1 - 100
-    private static final int SNOWFLAKES_SPEED_BY_DEFAULT = 5;  // Interval 1 - 100
+    // falling time by general is 60 seconds, FORMULA for changin speed is: 60/SNOWFLAKES_SPEED_BY_DEFAULT, so
+    // if SNOWFLAKES_SPEED_BY_DEFAULT == 4 then falling time is equal to 12 seconds, (60/4 == 15)
+    private static final int SNOWFLAKES_SPEED_BY_DEFAULT = 4;
     private static final boolean USE_ACCELEROMETR_BY_DEFAULT = true;
     private static final boolean USE_FIRST_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_SECOND_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_THIRD_SNOWFLAKE_BY_DEFAULT = true;
     private static final int HOW_MANY_TYPES_OF_SNOWFLAKES = 3;
 
-    public static int getAnimReactionDelay() {
-        return ANIM_REACTION_DELAY;
-    }
 
     public static float getSnowflakesAlphaDuration() {
         return SNOWFLAKES_ALPHA_DURATION;
     }
 
-    public static short getFallingAngleVariationMin() {
-        return FALLING_ANGLE_VARIATION_MIN;
-    }
-
-    public static short getFallingAngleVariationMax() {
-        return FALLING_ANGLE_VARIATION_MAX;
+    public static short getFallingAngleVariation() {
+        return FALLING_ANGLE_VARIATION;
     }
 
     public static List<Drawable> getThirdSnowflakeType_L() {
@@ -102,7 +95,7 @@ public class StaticValues {
 
 
 
-    public static float getSnowflakesFallingTime() {
+    public static int getSnowflakesFallingTime() {
         return SNOWFLAKES_FALLING_TIME;
     }
 

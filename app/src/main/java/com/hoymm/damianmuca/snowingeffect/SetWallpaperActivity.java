@@ -72,6 +72,12 @@ public class SetWallpaperActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        snowGenerator.onDestroy();
+        super.onDestroy();
+    }
+
     private void readSPAndRefreshIV() {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         int index = sharedPref.getInt(getResources().getString(R.string.SP_current_wallpaper_index), 0);
