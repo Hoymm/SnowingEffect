@@ -53,6 +53,10 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
     private RelativeLayout mainRelativeLayout;
     private int myDegrees = 0;
 
+
+    long startTime;
+    private TextView timeTV, timeFromStartTV;
+
     // implements runnable objects
     private Thread myThread = null;
     private boolean isThatOk = true;
@@ -71,12 +75,15 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         myContext = context;
         this.view = view;
 
+        startTime = System.currentTimeMillis();
+        timeTV = (TextView) view.findViewById(R.id.time_tv_id);
+        timeFromStartTV = (TextView) view.findViewById(R.id.time_from_start_tv_id);
+
         // get SharedPreferences
         sharedPref = PreferenceManager.getDefaultSharedPreferences(myContext);
 
         // assing arguments
         this.snowflakesAmount = snowflakesAmount/3 == 0 ? 3 : snowflakesAmount-(snowflakesAmount%3);
-        this.snowflakesAmount = 100;
         this.snowflakesFallingSpeed = snowflakesFallingSpeed+10;
         this.useAccelerometrEnabled = useAccelerometrEnabled;
         this.isFirstSnowflakeActive = isFirstSnowflakeActive;
@@ -158,7 +165,8 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         AnimatorSet animatorSet;
 
         //  APPEARING and DISAPPEARING snowflakes parameters
-        private boolean beginHidingSnowflakeBeforeDie, beginShowingSnowflakeAgain, setUpNewPosition;
+        private boolean beginHidingSnowflakeBeforeDie, beginShowingSnowflakeAgain, setUpNewPosition
+                , hidingAlphaBeforeRepeatWorking;
         int curItem = 0;
         // allows snow to fall in different lines (wind simulation) not only in single one line for all same, but in many different ways
         int randomAngleAdjust;
@@ -171,6 +179,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
             // initialization
             beginHidingSnowflakeBeforeDie = false;
             beginShowingSnowflakeAgain = true;
+            hidingAlphaBeforeRepeatWorking = false;
             setUpNewPosition = false;
             curItem = ++elementIndex;
             // drawable size
@@ -178,7 +187,8 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
             mySnowflakeIV.setLayoutParams(new RelativeLayout.LayoutParams(snowflakeWidth,snowflakeWidth));
 
 
-            randomAngleAdjust = (-StaticValues.getFallingAngleVariation()/2) + (int) (Math.random()*StaticValues.getFallingAngleVariation());
+            randomAngleAdjust = (-StaticValues.getFallingAngleVariation()/2)
+                    + (int) (Math.random()*StaticValues.getFallingAngleVariation());
 
             // set new position of drawable
             generateNewStartPosition();
@@ -219,7 +229,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
             mySnowflakeIV.setY((float)(devHeight/2
                     - (Math.cos(Math.toRadians(randomAngle)) * randomRadius)
                     - (Math.cos(Math.toRadians(myDegrees)) * randomDistanceToGenerateSnowHigher)));
-            Log.e("X", mySnowflakeIV.getX() + "\tY: " + mySnowflakeIV.getY());
+            //Log.e("ITEM (" + curItem + ") X", mySnowflakeIV.getX() + "\tY: " + mySnowflakeIV.getY());
             lastAnimatedValueY = mySnowflakeIV.getY();
             lastAnimatedValueX = mySnowflakeIV.getX();
         }
@@ -250,17 +260,65 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                 }
             });
 
+            int randomFallingLength = (int)(Math.random()*radius);
             // first start is synchronized from main run thread, next are invoked recursively
             animatorSet
-                    .play(Y_Movement())     // - true == X parameter
-                    .with(X_Movement())     // - false == X parameter
+                    .play(Y_Movement(randomFallingLength))     // - true == X parameter
+                    .with(X_Movement(randomFallingLength))     // - false == X parameter
                     //.with(rotationAnimation())
-                    .with(alphaShowAnimation());
+                    .with(alphaShowAnimation())
+                    .with(alphaHideAnimation());
 
             // if we start our animation newly, do not invoke method below
             if (!animationNewlyStarted)
                 animatorSet.start();
 
+        }
+
+        private Animator alphaHideAnimation() {
+            ValueAnimator alphaAnimation;
+
+            // if showing alpha then addition, otherwise substraction
+
+            alphaAnimation = ValueAnimator.ofFloat(1.0f, .0f);
+            alphaAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    mySnowflakeIV.setAlpha(mySnowflakeIV.getAlpha()-(1.0f/60f));
+                    if (mySnowflakeIV.getAlpha() <= 0.0f) {
+                        mySnowflakeIV.setAlpha(0f);
+                    }
+                    curAlpha = mySnowflakeIV.getAlpha();
+                }
+            });
+
+            alphaAnimation.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    hidingAlphaBeforeRepeatWorking = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    hidingAlphaBeforeRepeatWorking = false;
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+
+            alphaAnimation.setRepeatCount(ValueAnimator.INFINITE);
+            alphaAnimation.setDuration((long) StaticValues.getSnowflakesAlphaDuration());
+            alphaAnimation.setStartDelay(
+                    (long) (StaticValues.getSnowflakesFallingTime()-StaticValues.getSnowflakesAlphaDuration()));
+            return alphaAnimation;
         }
 
         // ALPHA
@@ -274,23 +332,26 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
             alphaAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    if (beginShowingSnowflakeAgain) {
-                        mySnowflakeIV.setAlpha(mySnowflakeIV.getAlpha()+(1.0f/60f));
-                        if (mySnowflakeIV.getAlpha() >= 1.0f) {
-                            beginShowingSnowflakeAgain = false;
-                            mySnowflakeIV.setAlpha(1.0f);
+                    if (!hidingAlphaBeforeRepeatWorking) {
+                        if (beginShowingSnowflakeAgain) {
+                            mySnowflakeIV.setAlpha(mySnowflakeIV.getAlpha() + (1.0f / 60f));
+                            if (mySnowflakeIV.getAlpha() >= 1.0f) {
+                                beginShowingSnowflakeAgain = false;
+                                mySnowflakeIV.setAlpha(1.0f);
+                            }
+                            curAlpha = mySnowflakeIV.getAlpha();
                         }
-                        curAlpha = mySnowflakeIV.getAlpha();
-                    }
-                    if (beginHidingSnowflakeBeforeDie) {
-                        mySnowflakeIV.setAlpha(mySnowflakeIV.getAlpha()-(1.0f/60f));
-                        if (mySnowflakeIV.getAlpha() <= 0.0f) {
-                            mySnowflakeIV.setAlpha(0f);
-                            beginHidingSnowflakeBeforeDie = false;
-                            setUpNewPosition = true;
-                            beginShowingSnowflakeAgain = true;
+                        if (beginHidingSnowflakeBeforeDie) {
+                            mySnowflakeIV.setAlpha(mySnowflakeIV.getAlpha() - (1.0f / 60f));
+                            if (mySnowflakeIV.getAlpha() <= 0.0f) {
+                                mySnowflakeIV.setAlpha(0f);
+                                //Log.e("ITEM (" + curItem + ") X", "\tALPHA 0000000");
+                                beginHidingSnowflakeBeforeDie = false;
+                                setUpNewPosition = true;
+                                beginShowingSnowflakeAgain = true;
+                            }
+                            curAlpha = mySnowflakeIV.getAlpha();
                         }
-                        curAlpha = mySnowflakeIV.getAlpha();
                     }
                 }
             });
@@ -320,11 +381,11 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         // Y POINT DESTINATION
         float lastAnimatedValueY = 0;
         long tempRefreshTime = 0;
-        private ValueAnimator Y_Movement() {
+        private ValueAnimator Y_Movement(int randomFallingLength) {
 
             ValueAnimator Y_Movement;
             Y_Movement = ValueAnimator.ofFloat(mySnowflakeIV.getY()
-                        , (int)(mySnowflakeIV.getY()+radius*2));
+                        , (int)(mySnowflakeIV.getY()+radius+randomFallingLength));
             lastAnimatedValueY = mySnowflakeIV.getY();
             //2
             Y_Movement.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -354,6 +415,8 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                         setUpNewPosition = false;
                     }
 
+                    timeTV.setText("Refresh time: " + ((lastRefreshTime-startTime)/1000));
+                    timeFromStartTV.setText("Time From Start: " + ((System.currentTimeMillis()-startTime)/1000));
 
                 }
 
@@ -366,11 +429,11 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
 
         float lastAnimatedValueX;
         // Y POINT DESTINATION
-        private ValueAnimator X_Movement() {
+        private ValueAnimator X_Movement(int randomFallingLength) {
 
             ValueAnimator X_Movement;
             X_Movement = ValueAnimator.ofFloat(mySnowflakeIV.getX()
-                        , (int)(mySnowflakeIV.getX()+radius*2));
+                        , (int)(mySnowflakeIV.getX()+radius+randomFallingLength));
             lastAnimatedValueX = mySnowflakeIV.getX();
             //2
             X_Movement.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -379,64 +442,9 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                     //3
                     float value = (float) animation.getAnimatedValue();
                     //4
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    
-
                     mySnowflakeIV.setX(mySnowflakeIV.getX()
                             + (float)(Math.abs(value-lastAnimatedValueX)
                             * Math.sin(Math.toRadians(myDegrees+randomAngleAdjust))));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                     lastAnimatedValueX = value;
                 }

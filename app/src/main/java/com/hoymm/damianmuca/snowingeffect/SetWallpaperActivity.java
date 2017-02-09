@@ -31,12 +31,6 @@ public class SetWallpaperActivity extends AppCompatActivity {
         getSupportActionBar().hide(); //<< HIDE TOP BAR
         setContentView(R.layout.activity_set_wallpaper);
 
-
-
-
-    }
-    @Override
-    protected void onResume() {
         // read SharedPreferences, and refresh ImageView
         readSPAndRefreshIV();
 
@@ -63,6 +57,12 @@ public class SetWallpaperActivity extends AppCompatActivity {
         snowGenerator.onResume();
 
 
+
+
+
+    }
+    @Override
+    protected void onResume() {
         super.onResume();
     }
 

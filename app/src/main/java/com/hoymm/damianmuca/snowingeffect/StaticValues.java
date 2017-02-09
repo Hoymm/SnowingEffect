@@ -17,7 +17,7 @@ public class StaticValues {
 
     // ANIMATION REACTION DELAY (When changing device roation)
     // FALLING_ANGLE_VARIATION creates an effect of little wind, so the snowflakes DOESN'T fall PERPENDICULARLY TO THE GROUND
-    private static final short FALLING_ANGLE_VARIATION = 15;  // Interval
+    private static final short FALLING_ANGLE_VARIATION = 25;  // Interval (0;180) discrepancy of falling snow
     // FALLING TIME
     private static final int SNOWFLAKES_FALLING_TIME = 15000;  // Interval >1
     // FALLING SPEED
@@ -37,7 +37,7 @@ public class StaticValues {
     private static final float WIND_INTENSITY_MIN = 0.00001f;
     private static final float WIND_INTENSITY_MAX = 0.00006f;
     // DEFAULT SETTINGS
-    private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 25; // Interval 1 - 100
+    private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 50; // Interval 1 - 100
     // falling time by general is 60 seconds, FORMULA for changin speed is: 60/SNOWFLAKES_SPEED_BY_DEFAULT, so
     // if SNOWFLAKES_SPEED_BY_DEFAULT == 4 then falling time is equal to 12 seconds, (60/4 == 15)
     private static final int SNOWFLAKES_SPEED_BY_DEFAULT = 4;

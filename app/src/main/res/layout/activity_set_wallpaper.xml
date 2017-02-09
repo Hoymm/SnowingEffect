@@ -26,11 +26,14 @@
             android:onClick="openSettingsWithWallpaperButtonClicked"
             android:id="@+id/settings_button_id"
             />
+
         <Button
             style="@style/wallpapers_buttons_style"
             android:text="@string/set_wallpaper"
             android:onClick="setThisWallpaperButtonClicked"
             />
+
+
     </LinearLayout>
     <TextView
         android:layout_width="wrap_content"
@@ -38,7 +41,25 @@
         android:textColor="#FF0000"
         android:text="asad"
         android:id="@+id/temp_sensor_tv_id"
-        android:textSize="45sp"
+        android:textSize="25sp"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_height="wrap_content"
+        android:textColor="#04ff00"
+        android:text="asad"
+        android:id="@+id/time_tv_id"
+        android:textSize="25sp"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_marginTop="80dp"
+        android:layout_height="wrap_content"
+        android:textColor="#001aff"
+        android:text="asad"
+        android:id="@+id/time_from_start_tv_id"
+        android:textSize="25sp"
         />
 
 </RelativeLayout>
