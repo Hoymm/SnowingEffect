@@ -17,25 +17,20 @@ public class StaticValues {
 
     // ANIMATION REACTION DELAY (When changing device roation)
     // FALLING_ANGLE_VARIATION creates an effect of little wind, so the snowflakes DOESN'T fall PERPENDICULARLY TO THE GROUND
-    private static final short FALLING_ANGLE_VARIATION = 25;  // Interval (0;180) discrepancy of falling snow
+    private static final short FALLING_ANGLE_VARIATION = 65;  // Interval (0;180) discrepancy of falling snow
     // FALLING TIME
-    private static final int SNOWFLAKES_FALLING_TIME = 15000;  // Interval >1
+    private static final int SNOWFLAKES_FALLING_TIME = 500000;  // Interval >1
     // FALLING SPEED
-    private static final double SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.001d;  // Interval >1
-    private static final double SNOWFLAKES_SPEED_MULTIPLER_MAX = 0.002d;  // Interval >1
+    private static final double SNOWFLAKES_SPEED_MULTIPLER_MIN = 0.0002d;  // Interval >1
+    private static final double SNOWFLAKES_SPEED_MULTIPLER_MAX = 0.0018d;  // Interval >1
     // APLHA
-    private static final long SNOWFLAKES_ALPHA_DURATION = 2000;  // miliseconds
+    private static final long SNOWFLAKES_ALPHA_DURATION = 1500;  // miliseconds
     // ROTATION
-    private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 1;  // Interval >1
-    private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 16;  // Interval >1
+    private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 10;  // ANGLES PER SECOND
+    private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 30;  // ANGLES PER SECOND
     // SIZE
     private static final int SNOWFLAKES_MAX_SIZE = 9;  // Interval 1 - 100
     private static final int SNOWFLAKES_MIN_SIZE = 5;  // Interval 1 - 100
-    // WIND
-    private static final int WIND_DEGREES_MIN = 86;
-    private static final int WIND_DEGREES_MAX = 94;
-    private static final float WIND_INTENSITY_MIN = 0.00001f;
-    private static final float WIND_INTENSITY_MAX = 0.00006f;
     // DEFAULT SETTINGS
     private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 50; // Interval 1 - 100
     // falling time by general is 60 seconds, FORMULA for changin speed is: 60/SNOWFLAKES_SPEED_BY_DEFAULT, so
@@ -45,10 +40,9 @@ public class StaticValues {
     private static final boolean USE_FIRST_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_SECOND_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_THIRD_SNOWFLAKE_BY_DEFAULT = true;
-    private static final int HOW_MANY_TYPES_OF_SNOWFLAKES = 3;
 
 
-    public static float getSnowflakesAlphaDuration() {
+    public static long getSnowflakesAlphaDuration() {
         return SNOWFLAKES_ALPHA_DURATION;
     }
 
@@ -56,63 +50,10 @@ public class StaticValues {
         return FALLING_ANGLE_VARIATION;
     }
 
-    public static List<Drawable> getThirdSnowflakeType_L() {
-        return thirdSnowflakeType_L;
-    }
-
-    public static void setThirdSnowflakeType_L(List<Drawable> thirdSnowflakeType_L) {
-        StaticValues.thirdSnowflakeType_L = thirdSnowflakeType_L;
-    }
-
-    public static void addItemToThirdSnowflakeType(Drawable drawable){
-        StaticValues.thirdSnowflakeType_L.add(drawable);
-    }
-
-    public static List<Drawable> getSecondSnowflakeType_L() {
-        return secondSnowflakeType_L;
-    }
-
-    public static void setSecondSnowflakeType_L(List<Drawable> secondSnowflakeType_L) {
-        StaticValues.secondSnowflakeType_L = secondSnowflakeType_L;
-    }
-
-    public static void addItemToSecondSnowflakeType(Drawable drawable){
-        StaticValues.secondSnowflakeType_L.add(drawable);
-    }
-
-    public static List<Drawable> getFirstSnowflakeType_L() {
-        return firstSnowflakeType_L;
-    }
-
-    public static void setFirstSnowflakeType_L(List<Drawable> firstSnowflakeType_L) {
-        StaticValues.firstSnowflakeType_L = firstSnowflakeType_L;
-    }
-
-    public static void addItemToFirstSnowflakeType(Drawable drawable){
-        StaticValues.thirdSnowflakeType_L.add(drawable);
-    }
-
-
 
 
     public static int getSnowflakesFallingTime() {
         return SNOWFLAKES_FALLING_TIME;
-    }
-
-    public static float getWindIntensityMin() {
-        return WIND_INTENSITY_MIN;
-    }
-
-    public static float getWindIntensityMax() {
-        return WIND_INTENSITY_MAX;
-    }
-
-    public static int getWindDegreesMin() {
-        return WIND_DEGREES_MIN;
-    }
-
-    public static int getWindDegreesMax() {
-        return WIND_DEGREES_MAX;
     }
 
     public static int getSnowflakesRotationMinSpeed() {
@@ -125,10 +66,6 @@ public class StaticValues {
 
     public static double getSnowflakesSpeedMultiplerMin() {
         return SNOWFLAKES_SPEED_MULTIPLER_MIN;
-    }
-
-    public static int getHowManyTypesOfSnowflakes() {
-        return HOW_MANY_TYPES_OF_SNOWFLAKES;
     }
 
     public static double getSnowflakesSpeedMultiplerMax() {

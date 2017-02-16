@@ -78,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/snowflakes_speed_id"
-            android:max="30"
+            android:max="130"
             />
 
         <TextView
