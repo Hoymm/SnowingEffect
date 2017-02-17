@@ -17,7 +17,7 @@ public class StaticValues {
 
     // ANIMATION REACTION DELAY (When changing device roation)
     // FALLING_ANGLE_VARIATION creates an effect of little wind, so the snowflakes DOESN'T fall PERPENDICULARLY TO THE GROUND
-    private static final short FALLING_ANGLE_VARIATION = 65;  // Interval (0;180) discrepancy of falling snow
+    private static final short FALLING_ANGLE_VARIATION = 35;  // Interval (0;180) discrepancy of falling snow
     // FALLING TIME
     private static final int SNOWFLAKES_FALLING_TIME = 500000;  // Interval >1
     // FALLING SPEED
