@@ -26,8 +26,8 @@ public class StaticValues {
     // APLHA
     private static final long SNOWFLAKES_ALPHA_DURATION = 1500;  // miliseconds
     // ROTATION
-    private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 10;  // ANGLES PER SECOND
-    private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 30;  // ANGLES PER SECOND
+    private static final int SNOWFLAKES_ROTATION_MIN_SPEED = 3;  // ANGLES PER SECOND
+    private static final int SNOWFLAKES_ROTATION_MAX_SPEED = 15;  // ANGLES PER SECOND
     // SIZE
     private static final int SNOWFLAKES_MAX_SIZE = 9;  // Interval 1 - 100
     private static final int SNOWFLAKES_MIN_SIZE = 5;  // Interval 1 - 100
@@ -35,7 +35,7 @@ public class StaticValues {
     private static final int SNOWFLAKES_AMOUNT_BY_DEFAULT = 50; // Interval 1 - 100
     // falling time by general is 60 seconds, FORMULA for changin speed is: 60/SNOWFLAKES_SPEED_BY_DEFAULT, so
     // if SNOWFLAKES_SPEED_BY_DEFAULT == 4 then falling time is equal to 12 seconds, (60/4 == 15)
-    private static final int SNOWFLAKES_SPEED_BY_DEFAULT = 4;
+    private static final int SNOWFLAKES_SPEED_BY_DEFAULT = 30;
     private static final boolean USE_ACCELEROMETR_BY_DEFAULT = true;
     private static final boolean USE_FIRST_SNOWFLAKE_BY_DEFAULT = true;
     private static final boolean USE_SECOND_SNOWFLAKE_BY_DEFAULT = true;
