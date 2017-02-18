@@ -36,12 +36,11 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
     // Objects initializated by constructor
     private Context myContext;
     final private View view;
-    private int snowflakesAmount, snowflakesFallingSpeed;
-    private boolean useAccelerometrEnabled, isFirstSnowflakeActive
+    private int localSnowflakesAmount, localSnowflakesFallingSpeed;
+    private final boolean useAccelerometrEnabled, isFirstSnowflakeActive
             , isSecondSnowflakeActive, isThirdSnowflakeActive;
 
-    SharedPreferences sharedPref;
-    private ImageView [] mySnowflakesIVArray;
+    private SharedPreferences sharedPref;
     private ArrayList<Snowflake> mySnowflakesAL;
 
     // other objects
@@ -63,12 +62,12 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
     public SnowGeneratorClass(
             Context context
             , final View view
-            , int snowflakesAmount
-            , int snowflakesFallingSpeed
+            , final int snowflakesAmount
+            , final int snowflakesFallingSpeed
             , boolean useAccelerometrEnabled
-            , boolean isFirstSnowflakeActive
-            , boolean isSecondSnowflakeActive
-            , boolean isThirdSnowflakeActive
+            , final boolean isFirstSnowflakeActive
+            , final boolean isSecondSnowflakeActive
+            , final boolean isThirdSnowflakeActive
     ) {
 
         // ##### ASSIGN OBJECTS
@@ -83,8 +82,8 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(myContext);
 
         // assing arguments
-        this.snowflakesAmount = snowflakesAmount/3 == 0 ? 3 : snowflakesAmount-(snowflakesAmount%3);
-        this.snowflakesFallingSpeed = (StaticValues.getSnowflakesFallingTime()/(snowflakesFallingSpeed+10));
+        this.localSnowflakesAmount = snowflakesAmount/3 == 0 ? 3 : snowflakesAmount-(snowflakesAmount%3);
+        this.localSnowflakesFallingSpeed = (StaticValues.getSnowflakesFallingTime()/(snowflakesFallingSpeed+10));
         this.useAccelerometrEnabled = useAccelerometrEnabled;
         this.isFirstSnowflakeActive = isFirstSnowflakeActive;
         this.isSecondSnowflakeActive = isSecondSnowflakeActive;
@@ -96,23 +95,81 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
 
         devWidth = displayMetrics.widthPixels;
         devHeight = displayMetrics.heightPixels;
-        radius = (Math.sqrt(Math.pow(devWidth/2,2) + Math.pow(devHeight/2,2))+100);
+        radius = (Math.sqrt(Math.pow(devWidth/2,2) + Math.pow(devHeight/2,2)));
         density = displayMetrics.density;
 
         // Initializate accelerometer
         if (useAccelerometrEnabled)
             initAccelerometer();
-
+        else {
+            myDegrees = 0;
+            sensorChecked = true;
+        }
         mainRelativeLayout = (RelativeLayout) view.findViewById(R.id.activity_set_wallpaper);
 
         // init snowflakes by id drawables
         mySnowflakesAL = new ArrayList<>();
+
+
+        Thread snowflakesInitThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (snowflakesInitIndex < localSnowflakesAmount) {
+                        // when accelerometer does not work yet, skip code
+                        if (!sensorChecked) {
+                            continue;
+                        }
+                        // run next animation
+                        if (isFirstSnowflakeActive || isSecondSnowflakeActive || isThirdSnowflakeActive)
+                            ((Activity) myContext).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    // if no snoflake type enabled, then skip it
+                                    if (snowflakesInitIndex < localSnowflakesAmount) {
+                                        if (isFirstSnowflakeActive) {
+                                            mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_1));
+                                            mySnowflakesAL.get(snowflakesInitIndex).startAnimation
+                                                    (snowflakesInitIndex
+                                                            * localSnowflakesFallingSpeed / localSnowflakesAmount);
+                                            ++snowflakesInitIndex;
+                                        }
+                                        if (isSecondSnowflakeActive) {
+                                            mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_2));
+                                            mySnowflakesAL.get(snowflakesInitIndex).startAnimation
+                                                    (snowflakesInitIndex
+                                                            * localSnowflakesFallingSpeed / localSnowflakesAmount);
+                                            ++snowflakesInitIndex;
+                                        }
+                                        if (isThirdSnowflakeActive) {
+                                            mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_3));
+                                            mySnowflakesAL.get(snowflakesInitIndex).startAnimation
+                                                    (snowflakesInitIndex
+                                                            * localSnowflakesFallingSpeed / localSnowflakesAmount);
+                                            ++snowflakesInitIndex;
+                                        }
+                                    }
+                                }
+                            });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        snowflakesInitThread.start();
+
+
+
     }
+
 
     boolean sensorChecked = false;
     private void initAccelerometer() {
         // Check orientation for changing direction of smoke rising
-        OrientationEventListener myOrientationEventListener = new OrientationEventListener(myContext, SensorManager.SENSOR_DELAY_GAME) {
+        OrientationEventListener myOrientationEventListener =
+                new OrientationEventListener(myContext, SensorManager.SENSOR_DELAY_GAME) {
             @Override
             public void onOrientationChanged(int currentDegrees) {
                 // TODO Auto-generated method stub
@@ -221,12 +278,12 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
             //Log.e("Y POS", (int)yPos+"");
 
 
-            mySnowflakeIV.setX((float)(devWidth/2
+            mySnowflakeIV.setTranslationX((float)(devWidth/2
                     - snowflakeWidth/2
                     - (Math.sin(Math.toRadians(randomAngle)) * randomRadius)
                     - ((Math.sin(Math.toRadians(myDegrees))) * randomDistanceToGenerateSnowHigher)));
 
-            mySnowflakeIV.setY((float)(devHeight/2
+            mySnowflakeIV.setTranslationY((float)(devHeight/2
                     - snowflakeWidth/2
                     // set snowflake random position
                     - (Math.cos(Math.toRadians(randomAngle)) * randomRadius)
@@ -236,7 +293,8 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
             lastAnimatedValueX = xPos;
         }
 
-        void startAnimation(){
+        void startAnimation(int startDelay){
+            animatorSet.setStartDelay(startDelay);
             animatorSet.start();
         }
 
@@ -258,7 +316,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                     *(StaticValues.getSnowflakesRotationMaxSpeed()-StaticValues.getSnowflakesRotationMinSpeed()));
 
 
-            rotateAnimation = ValueAnimator.ofFloat(0, (randomAnglesPerSecondRotationSpeed*snowflakesFallingSpeed)/100);
+            rotateAnimation = ValueAnimator.ofFloat(0, (randomAnglesPerSecondRotationSpeed* localSnowflakesFallingSpeed)/100);
             rotateAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
@@ -266,7 +324,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                     mySnowflakeIV.setRotation(value);
                 }
             });
-            rotateAnimation.setDuration(snowflakesFallingSpeed);
+            rotateAnimation.setDuration(localSnowflakesFallingSpeed);
             rotateAnimation.setRepeatCount(0);
             return rotateAnimation;
         }
@@ -276,7 +334,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         long tempRefreshTime = 0;
         private ValueAnimator animHandleMethod(int randomFallingLength) {
             ValueAnimator Y_Movement = ValueAnimator.ofFloat(0, randomFallingLength);
-            lastAnimatedValueY = mySnowflakeIV.getY();
+            lastAnimatedValueY = mySnowflakeIV.getTranslationY();
 
             final ValueAnimator snowflakeAlphaVA =  alphaAnimation();
             final ValueAnimator xSnowflakeMovementVA =  X_Movement(randomFallingLength);
@@ -313,7 +371,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                     //4
                     /*if (curItem == 0)
                         Log.e(curItem
-                                + " GetY() ", mySnowflakeIV.getY()
+                                + " getTranslationY() ", mySnowflakeIV.getTranslationY()
                                 + "\tLastAnimated_Y: " + lastAnimatedValueY
                                 + "\tValue: " + lastAnimatedValueY
                                 + "\tMath.abs(): " + Math.abs(value-lastAnimatedValueY)
@@ -328,7 +386,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                         pixelsToMove = 0.9f;
                     else
                         pixelsToMove = Math.abs(value-lastAnimatedValueY);
-                    mySnowflakeIV.setY(mySnowflakeIV.getY()
+                    mySnowflakeIV.setTranslationY(mySnowflakeIV.getTranslationY()
                             + (float)(pixelsToMove*Math.cos(Math.toRadians(myDegrees+randomAngleAdjust))));
                     if (curItem==0)
                         Log.e("Pixels To Move", pixelsToMove
@@ -339,7 +397,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                 }
 
             });
-            Y_Movement.setDuration(snowflakesFallingSpeed);
+            Y_Movement.setDuration(localSnowflakesFallingSpeed);
             Y_Movement.setInterpolator(new LinearInterpolator());
             return Y_Movement;
         }
@@ -374,7 +432,7 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
-                    alphaHideAnimation.setStartDelay(snowflakesFallingSpeed - (StaticValues.getSnowflakesAlphaDuration() * 2 + 1000));
+                    alphaHideAnimation.setStartDelay(localSnowflakesFallingSpeed - (StaticValues.getSnowflakesAlphaDuration() * 2 + 1000));
                     alphaHideAnimation.start();
                 }
             });
@@ -388,9 +446,9 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         private ValueAnimator X_Movement(int randomFallingLength) {
 
             ValueAnimator X_Movement;
-            X_Movement = ValueAnimator.ofFloat(mySnowflakeIV.getX()
-                        , (int)(mySnowflakeIV.getX()+radius+randomFallingLength));
-            lastAnimatedValueX = mySnowflakeIV.getX();
+            X_Movement = ValueAnimator.ofFloat(mySnowflakeIV.getTranslationX()
+                        , (int)(mySnowflakeIV.getTranslationX()+radius+randomFallingLength));
+            lastAnimatedValueX = mySnowflakeIV.getTranslationX();
             //2
             X_Movement.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -405,14 +463,14 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
                         pixelsToMove = 0.9f;
                     else
                         pixelsToMove = Math.abs(value-lastAnimatedValueX);
-                    mySnowflakeIV.setX(mySnowflakeIV.getX()
+                    mySnowflakeIV.setTranslationX(mySnowflakeIV.getTranslationX()
                             + (float)(pixelsToMove*Math.sin(Math.toRadians(myDegrees+randomAngleAdjust))));
                     lastAnimatedValueX = value;
                 }
 
             });
 
-            X_Movement.setDuration(snowflakesFallingSpeed);
+            X_Movement.setDuration(localSnowflakesFallingSpeed);
             X_Movement.setInterpolator(new LinearInterpolator());
             X_Movement.setRepeatCount(0);
             return X_Movement;
@@ -458,50 +516,9 @@ class SnowGeneratorClass implements Runnable, SensorEventListener {
         }
     }
 
-    private int animationList = 0, snowflakesInitIndex = 0;
+    private int snowflakesInitIndex = 0;
     @Override
     public void run() {
-        while (isThatOk) {
-
-            try {
-                Thread.sleep(snowflakesFallingSpeed / snowflakesAmount);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-            // when accelerometer does not work yet, skip code
-            if (!sensorChecked) {
-                continue;
-            }
-            // run next animation
-            if (isFirstSnowflakeActive || isSecondSnowflakeActive || isThirdSnowflakeActive)
-                ((Activity) myContext).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        // if no snoflake type enabled, then skip it
-                        if (snowflakesInitIndex < snowflakesAmount) {
-                            if (isFirstSnowflakeActive) {
-                                mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_1));
-                                ++snowflakesInitIndex;
-                            }
-                            if (isSecondSnowflakeActive) {
-                                mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_2));
-                                ++snowflakesInitIndex;
-                            }
-                            if (isThirdSnowflakeActive) {
-                                mySnowflakesAL.add(new Snowflake(R.drawable.menu_snow_3));
-                                ++snowflakesInitIndex;
-                            }
-                        }
-
-
-                        if (animationList < mySnowflakesAL.size())
-                            mySnowflakesAL.get(animationList++).startAnimation();
-                    }
-                });
-        }
     }
 
     @Override

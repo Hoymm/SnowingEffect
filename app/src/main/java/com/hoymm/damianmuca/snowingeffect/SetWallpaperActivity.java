@@ -37,14 +37,23 @@ public class SetWallpaperActivity extends AppCompatActivity {
 
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        int screenDependingMultiplier = 1 + (int) (Math.sqrt(
+                        Math.pow(getResources().getDisplayMetrics().widthPixels,2)
+                        + Math.pow(getResources().getDisplayMetrics().heightPixels,2))
+                        * getResources().getDisplayMetrics().density)/1000;
+
+        int snowflakesAmount = sharedPref.getInt(getResources().getString
+                (R.string.SP_snowflakes_amount), StaticValues.getSnowflakesAmountByDefault());
+        int snowflakesSpeed = sharedPref.getInt(getResources().getString
+                (R.string.SP_snowflakes_speed), StaticValues.getSnowflakesSpeedByDefault());
+
+
         // create object of snowflakesGeneratorClass, that will generate snowflakes over screen
         snowGenerator = new SnowGeneratorClass(
                 this                                                // CONTEXT
                 , getWindow().getDecorView().getRootView()          // VIEW
-                , sharedPref.getInt(getResources().getString        // SNOWFLAKES AMOUNT
-                (R.string.SP_snowflakes_amount), StaticValues.getSnowflakesAmountByDefault())
-                , sharedPref.getInt(getResources().getString        // SNOWFLAKE SPEED
-                (R.string.SP_snowflakes_speed), StaticValues.getSnowflakesSpeedByDefault())
+                , snowflakesAmount*screenDependingMultiplier        // SNOWFLAKES AMOUNT
+                , snowflakesSpeed*screenDependingMultiplier         // SNOWFLAKE SPEED
                 , sharedPref.getBoolean(getResources().getString    // if use ACCELEROMETR
                 (R.string.SP_use_accelerometer_cb), StaticValues.isUseAccelerometrByDefault())
                 , sharedPref.getBoolean(getResources().getString    // if use FIRST SNOWFLAKE
